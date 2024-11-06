@@ -8,3 +8,9 @@ class Product(models.Model):
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+
+class DiscountCode(models.Model):
+    code = models.CharField(max_length=50)
+    discount_percent = models.FloatField()
+
+

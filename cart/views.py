@@ -26,3 +26,8 @@ def update_cart(request, item_id):
     quantity = int(request.POST.get('quantity'))
     # Update item quantity and reflect changes in price
     return redirect('cart_detail')
+
+def apply_discount(request):
+    code = request.POST.get('code')
+    # Validate and apply discount
+    return redirect('checkout')
