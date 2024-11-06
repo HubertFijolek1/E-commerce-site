@@ -24,9 +24,23 @@ def add_to_cart(request, product_id):
     return redirect('cart_detail')
 
 def cart_detail(request):
-    # Retrieve cart items from session or user cart
-    # Calculate total price
+    cart_items = request.session.get('cart_items', {})
+    products = Product.objects.filter(id__in=cart_items.keys())
+    cart_products = []
+    total_price = 0
+
+    for product in products:
+        quantity = cart_items[str(product.id)]['quantity']
+        subtotal = product.price * quantity
+        total_price += subtotal
+        cart_products.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
+
+    context = {
+        'cart_products': cart_products,
+        'total_price': total_price,
+    }
     return render(request, 'cart/cart_detail.html', context)
+
 
 def remove_from_cart(request, item_id):
     # Remove item and update total price
