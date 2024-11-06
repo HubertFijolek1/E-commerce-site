@@ -10,18 +10,16 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.POST.get('quantity', 1))
 
+    cart_items = request.session.get('cart_items', {})
+    current_quantity = cart_items.get(str(product_id), {}).get('quantity', 0)
+    total_quantity = current_quantity + quantity
+
     # Validate stock
-    if quantity > product.stock:
+    if total_quantity > product.stock:
         messages.error(request, "Not enough stock available.")
         return redirect('product_detail', product_id=product_id)
 
-    cart_items = request.session.get('cart_items', {})
-
-    if str(product_id) in cart_items:
-        cart_items[str(product_id)]['quantity'] += quantity
-    else:
-        cart_items[str(product_id)] = {'quantity': quantity, 'price': str(product.price)}
-
+    cart_items[str(product_id)] = {'quantity': total_quantity, 'price': str(product.price)}
     request.session['cart_items'] = cart_items
     messages.success(request, "Product added to cart.")
     return redirect('cart_detail')
@@ -77,10 +75,9 @@ def update_cart(request, product_id):
         messages.error(request, "Not enough stock available.")
         return redirect('cart_detail')
 
-    if str(product_id) in cart_items:
-        cart_items[str(product_id)]['quantity'] = quantity
-        request.session['cart_items'] = cart_items
-        messages.success(request, "Cart updated.")
+    cart_items[str(product_id)]['quantity'] = quantity
+    request.session['cart_items'] = cart_items
+    messages.success(request, "Cart updated.")
     return redirect('cart_detail')
 
 
