@@ -33,7 +33,10 @@
         {% if discount_percent %}
             <p>Discount ({{ discount_percent }}%): -${{ discount_amount }}</p>
         {% endif %}
-        <p>Total Price after Discount: ${{ total_price_after_discount }}</p>
+        <p>Price after Discount: ${{ price_after_discount }}</p>
+        <p>Tax ({{ TAX_RATE|floatformat:0 }}%): ${{ tax_amount }}</p>
+        <p>Shipping: ${{ shipping_cost }}</p>
+        <p><strong>Final Total: ${{ final_total }}</strong></p>
 
         <form action="{% url 'apply_discount' %}" method="post">
             {% csrf_token %}

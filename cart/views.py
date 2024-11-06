@@ -2,6 +2,9 @@ from django.shortcuts import redirect, get_object_or_404, render
 from .models import Product, CartItem, DiscountCode
 from django.contrib import messages
 
+# Constants for tax and shipping
+TAX_RATE = 0.10  # 10% tax
+SHIPPING_COST = 5.00  # Flat shipping rate
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -37,14 +40,20 @@ def cart_detail(request):
 
     discount_percent = request.session.get('discount', 0)
     discount_amount = total_price * (discount_percent / 100)
-    total_price_after_discount = total_price - discount_amount
+    price_after_discount = total_price - discount_amount
+
+    tax_amount = price_after_discount * TAX_RATE
+    final_total = price_after_discount + tax_amount + SHIPPING_COST
 
     context = {
         'cart_products': cart_products,
         'total_price': total_price,
         'discount_percent': discount_percent,
         'discount_amount': discount_amount,
-        'total_price_after_discount': total_price_after_discount,
+        'price_after_discount': price_after_discount,
+        'tax_amount': tax_amount,
+        'shipping_cost': SHIPPING_COST,
+        'final_total': final_total,
     }
     return render(request, 'cart/cart_detail.html', context)
 
