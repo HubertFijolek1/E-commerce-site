@@ -31,3 +31,7 @@ def apply_discount(request):
     code = request.POST.get('code')
     # Validate and apply discount
     return redirect('checkout')
+
+def checkout(request):
+    # Calculate total price including taxes and shipping
+    return render(request, 'cart/checkout.html', context)
