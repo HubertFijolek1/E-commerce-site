@@ -36,20 +36,20 @@
                     <button type="submit">Update</button>
                 </form>
             </td>
-            <td>${{ item.subtotal }}</td>
+            <td>${{ item.subtotal|floatformat:2 }}</td>
             <td><a href="{% url 'remove_from_cart' item.product.id %}">Remove</a></td>
         </tr>
         {% endfor %}
     </table>
 
-    <p>Subtotal: ${{ total_price }}</p>
+    <p>Subtotal: ${{ total_price|floatformat:2 }}</p>
     {% if discount_percent %}
-        <p>Discount ({{ discount_percent }}%): -${{ discount_amount }}</p>
+        <p>Discount ({{ discount_percent }}%): -${{ discount_amount|floatformat:2 }}</p>
     {% endif %}
-    <p>Price after Discount: ${{ price_after_discount }}</p>
-    <p>Tax (10%): ${{ tax_amount }}</p>
-    <p>Shipping: ${{ shipping_cost }}</p>
-    <p><strong>Final Total: ${{ final_total }}</strong></p>
+    <p>Price after Discount: ${{ price_after_discount|floatformat:2 }}</p>
+    <p>Tax (10%): ${{ tax_amount|floatformat:2 }}</p>
+    <p>Shipping: ${{ shipping_cost|floatformat:2 }}</p>
+    <p><strong>Final Total: ${{ final_total|floatformat:2 }}</strong></p>
 
     <form action="{% url 'apply_discount' %}" method="post">
         {% csrf_token %}

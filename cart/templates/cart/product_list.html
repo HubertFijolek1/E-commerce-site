@@ -4,9 +4,10 @@
 <ul>
     {% for product in products %}
         <li>
-            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
-            - ${{ product.price }}
+            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a> - ${{ product.price }}
         </li>
+    {% empty %}
+        <li>No products available.</li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Product, DiscountCode, Cart, CartItem
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 # Constants for tax and shipping
-TAX_RATE = 0.10  # 10% tax
-SHIPPING_COST = 5.00  # Flat shipping rate
+TAX_RATE = Decimal('0.10')  # 10% tax as Decimal
+FREE_SHIPPING_THRESHOLD = Decimal('100.00')
+FLAT_SHIPPING_RATE = Decimal('10.00')
 
 def add_to_cart(request, product_id):
     """
@@ -52,7 +54,7 @@ def cart_detail(request):
     View to display items in the cart and the total price, including shipping calculation.
     """
     cart_products = []
-    total_price = 0
+    total_price = Decimal('0.00')
 
     if request.user.is_authenticated:
         # Retrieve all carts for the user
@@ -87,17 +89,17 @@ def cart_detail(request):
                 'subtotal': subtotal
             })
 
-    discount_percent = request.session.get('discount', 0)
-    discount_amount = total_price * (discount_percent / 100)
+    discount_percent = Decimal(request.session.get('discount', 0))
+    discount_amount = total_price * (discount_percent / Decimal('100'))
     price_after_discount = total_price - discount_amount
 
     tax_amount = price_after_discount * TAX_RATE
 
     # Dynamic shipping cost based on total price after discount
-    if price_after_discount >= 100:
-        shipping_cost = 0.00  # Free shipping for orders over $100
+    if price_after_discount >= FREE_SHIPPING_THRESHOLD:
+        shipping_cost = Decimal('0.00')  # Free shipping
     else:
-        shipping_cost = 10.00  # Flat rate shipping
+        shipping_cost = FLAT_SHIPPING_RATE  # Flat rate shipping
 
     final_total = price_after_discount + tax_amount + shipping_cost
 
