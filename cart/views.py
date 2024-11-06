@@ -192,19 +192,20 @@ def select_cart(request, cart_id):
     messages.success(request, f"Cart '{cart.name}' is now active.")
     return redirect('cart_detail')
 
-@login_required
 def clear_cart(request):
     """
-    View to clear all items from the active cart.
+    View to clear all items from the cart.
     """
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user, is_active=True).first()
         if cart:
+            # Delete all items in the active cart
             CartItem.objects.filter(cart=cart).delete()
-            messages.success(request, "Cart cleared.")
+            messages.success(request, "Your cart has been cleared.")
         else:
             messages.error(request, "No active cart found to clear.")
     else:
+        # Clear session-based cart for guest users
         request.session['cart_items'] = {}
-        messages.success(request, "Cart cleared.")
+        messages.success(request, "Your cart has been cleared.")
     return redirect('cart_detail')
