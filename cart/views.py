@@ -17,3 +17,7 @@ def cart_detail(request):
     # Retrieve cart items from session or user cart
     # Calculate total price
     return render(request, 'cart/cart_detail.html', context)
+
+def remove_from_cart(request, item_id):
+    # Remove item and update total price
+    return redirect('cart_detail')
