@@ -17,6 +17,7 @@ class Cart(models.Model):
     Model representing a shopping cart associated with a user.
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, default="Default Cart")
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
