@@ -49,7 +49,7 @@ def add_to_cart(request, product_id):
 
 def cart_detail(request):
     """
-    View to display items in the cart and the total price.
+    View to display items in the cart and the total price, including shipping calculation.
     """
     cart_products = []
     total_price = 0
@@ -92,7 +92,14 @@ def cart_detail(request):
     price_after_discount = total_price - discount_amount
 
     tax_amount = price_after_discount * TAX_RATE
-    final_total = price_after_discount + tax_amount + SHIPPING_COST
+
+    # Dynamic shipping cost based on total price after discount
+    if price_after_discount >= 100:
+        shipping_cost = 0.00  # Free shipping for orders over $100
+    else:
+        shipping_cost = 10.00  # Flat rate shipping
+
+    final_total = price_after_discount + tax_amount + shipping_cost
 
     context = {
         'cart_products': cart_products,
@@ -101,7 +108,7 @@ def cart_detail(request):
         'discount_amount': discount_amount,
         'price_after_discount': price_after_discount,
         'tax_amount': tax_amount,
-        'shipping_cost': SHIPPING_COST,
+        'shipping_cost': shipping_cost,
         'final_total': final_total,
         'carts': carts,
     }
