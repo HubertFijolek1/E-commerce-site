@@ -16,7 +16,11 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.product.name}"
 
 class DiscountCode(models.Model):
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, unique=True)
     discount_percent = models.FloatField()
+
+    def __str__(self):
+        return self.code
+
 
 

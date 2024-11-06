@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, get_object_or_404, render
-from .models import Product, CartItem
+from .models import Product, CartItem, DiscountCode
 from django.contrib import messages
 
 
@@ -35,9 +35,16 @@ def cart_detail(request):
         total_price += subtotal
         cart_products.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
 
+    discount_percent = request.session.get('discount', 0)
+    discount_amount = total_price * (discount_percent / 100)
+    total_price_after_discount = total_price - discount_amount
+
     context = {
         'cart_products': cart_products,
         'total_price': total_price,
+        'discount_percent': discount_percent,
+        'discount_amount': discount_amount,
+        'total_price_after_discount': total_price_after_discount,
     }
     return render(request, 'cart/cart_detail.html', context)
 
@@ -70,8 +77,14 @@ def update_cart(request, product_id):
 
 def apply_discount(request):
     code = request.POST.get('code')
-    # Validate and apply discount
-    return redirect('checkout')
+    try:
+        discount = DiscountCode.objects.get(code=code)
+        request.session['discount'] = discount.discount_percent
+        messages.success(request, "Discount code applied.")
+    except DiscountCode.DoesNotExist:
+        messages.error(request, "Invalid discount code.")
+    return redirect('cart_detail')
+
 
 def checkout(request):
     # Calculate total price including taxes and shipping
