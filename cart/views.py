@@ -21,3 +21,8 @@ def cart_detail(request):
 def remove_from_cart(request, item_id):
     # Remove item and update total price
     return redirect('cart_detail')
+
+def update_cart(request, item_id):
+    quantity = int(request.POST.get('quantity'))
+    # Update item quantity and reflect changes in price
+    return redirect('cart_detail')
