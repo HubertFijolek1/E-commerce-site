@@ -216,3 +216,17 @@ def clear_cart(request):
         request.session['cart_items'] = {}
         messages.success(request, "Your cart has been cleared.")
     return redirect('cart_detail')
+
+def product_list(request):
+    """
+    View to display a list of all products.
+    """
+    products = Product.objects.all()
+    return render(request, 'cart/product_list.html', {'products': products})
+
+def product_detail(request, product_id):
+    """
+    View to display the details of a single product.
+    """
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'cart/product_detail.html', {'product': product})
