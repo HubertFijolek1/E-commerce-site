@@ -51,10 +51,22 @@ def remove_from_cart(request, product_id):
     return redirect('cart_detail')
 
 
-def update_cart(request, item_id):
-    quantity = int(request.POST.get('quantity'))
-    # Update item quantity and reflect changes in price
+def update_cart(request, product_id):
+    cart_items = request.session.get('cart_items', {})
+    quantity = int(request.POST.get('quantity', 1))
+
+    # Validate stock
+    product = get_object_or_404(Product, id=product_id)
+    if quantity > product.stock:
+        messages.error(request, "Not enough stock available.")
+        return redirect('cart_detail')
+
+    if str(product_id) in cart_items:
+        cart_items[str(product_id)]['quantity'] = quantity
+        request.session['cart_items'] = cart_items
+        messages.success(request, "Cart updated.")
     return redirect('cart_detail')
+
 
 def apply_discount(request):
     code = request.POST.get('code')
