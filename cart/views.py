@@ -42,9 +42,14 @@ def cart_detail(request):
     return render(request, 'cart/cart_detail.html', context)
 
 
-def remove_from_cart(request, item_id):
-    # Remove item and update total price
+def remove_from_cart(request, product_id):
+    cart_items = request.session.get('cart_items', {})
+    if str(product_id) in cart_items:
+        del cart_items[str(product_id)]
+        request.session['cart_items'] = cart_items
+        messages.success(request, "Item removed from cart.")
     return redirect('cart_detail')
+
 
 def update_cart(request, item_id):
     quantity = int(request.POST.get('quantity'))

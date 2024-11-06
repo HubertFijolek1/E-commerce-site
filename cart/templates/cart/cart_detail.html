@@ -17,6 +17,7 @@
                 <td>{{ item.product.name }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>${{ item.subtotal }}</td>
+                <td><a href="{% url 'remove_from_cart' item.product.id %}">Remove</a></td>
             </tr>
             {% endfor %}
         </table>
