@@ -11,17 +11,35 @@
                 <th>Product</th>
                 <th>Quantity</th>
                 <th>Subtotal</th>
+                <th>Action</th>
             </tr>
             {% for item in cart_products %}
             <tr>
                 <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
+                <td>
+                    <form action="{% url 'update_cart' item.product.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
                 <td>${{ item.subtotal }}</td>
                 <td><a href="{% url 'remove_from_cart' item.product.id %}">Remove</a></td>
             </tr>
             {% endfor %}
         </table>
-        <p>Total Price: ${{ total_price }}</p>
+
+        <p>Subtotal: ${{ total_price }}</p>
+        {% if discount_percent %}
+            <p>Discount ({{ discount_percent }}%): -${{ discount_amount }}</p>
+        {% endif %}
+        <p>Total Price after Discount: ${{ total_price_after_discount }}</p>
+
+        <form action="{% url 'apply_discount' %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="code" placeholder="Discount code">
+            <button type="submit">Apply</button>
+        </form>
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}
