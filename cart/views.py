@@ -1,16 +1,26 @@
 from django.shortcuts import redirect, get_object_or_404, render
 from .models import Product, CartItem
+from django.contrib import messages
+
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.POST.get('quantity', 1))
+
     # Validate stock
     if quantity > product.stock:
-        # Handle out-of-stock scenario
-        pass
+        messages.error(request, "Not enough stock available.")
+        return redirect('product_detail', product_id=product_id)
+
+    cart_items = request.session.get('cart_items', {})
+
+    if str(product_id) in cart_items:
+        cart_items[str(product_id)]['quantity'] += quantity
     else:
-        cart_item = CartItem.objects.create(product=product, quantity=quantity)
-        # Save to session or user cart
+        cart_items[str(product_id)] = {'quantity': quantity, 'price': str(product.price)}
+
+    request.session['cart_items'] = cart_items
+    messages.success(request, "Product added to cart.")
     return redirect('cart_detail')
 
 def cart_detail(request):
