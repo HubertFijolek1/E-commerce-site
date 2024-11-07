@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Order #{{ order.id }}</h1>
+<p>Placed on: {{ order.created_at }}</p>
+<p>Total Amount: ${{ order.total_amount|floatformat:2 }}</p>
+{% if order.discount_code %}
+    <p>Discount Code: {{ order.discount_code.code }} ({{ order.discount_code.discount_percent }}%)</p>
+{% endif %}
+<p>Tax: ${{ order.tax_amount|floatformat:2 }}</p>
+<p>Shipping: ${{ order.shipping_cost|floatformat:2 }}</p>
+<p><strong>Final Total: ${{ order.final_total|floatformat:2 }}</strong></p>
+
+<h2>Items</h2>
+<ul>
+    {% for item in order.items.all %}
+        <li>{{ item.quantity }} x {{ item.product.name }} @ ${{ item.price_at_purchase|floatformat:2 }} each</li>
+    {% endfor %}
+</ul>
+{% endblock %}
