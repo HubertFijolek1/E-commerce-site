@@ -2,6 +2,8 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from decimal import Decimal
 from .models import Product, Cart, CartItem, DiscountCode
+from django.urls import reverse
+
 
 class ProductViewTests(TestCase):
     def setUp(self):
@@ -39,7 +41,8 @@ class CartTests(TestCase):
         self.cart = Cart.objects.create(user=self.user, is_active=True)
 
     def test_add_to_cart_authenticated_user(self):
-        response = self.client.post(f'/cart/add/{self.product.id}/', {'quantity': 2})
+        add_url = reverse('add_to_cart', args=[self.product.id])
+        response = self.client.post(add_url, {'quantity': 2})
         cart_item = CartItem.objects.get(cart=self.cart, product=self.product)
         self.assertEqual(cart_item.quantity, 2)
         self.assertEqual(cart_item.product.name, 'Test Product')
