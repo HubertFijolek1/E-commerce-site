@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import timezone
 
 class Product(models.Model):
     """
@@ -35,14 +36,24 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.product.name}"
 
 class DiscountCode(models.Model):
-    """
-    Model representing a discount code.
-    """
     code = models.CharField(max_length=50, unique=True)
     discount_percent = models.DecimalField(max_digits=5, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    usage_limit = models.PositiveIntegerField(null=True, blank=True)
+    times_used = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.code
+
+    def is_valid(self):
+        if not self.is_active:
+            return False
+        if self.expires_at and timezone.now() > self.expires_at:
+            return False
+        if self.usage_limit and self.times_used >= self.usage_limit:
+            return False
+        return True
 
 class Order(models.Model):
     """
