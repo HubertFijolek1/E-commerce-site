@@ -14,7 +14,13 @@ def add_to_cart(request, product_id):
     View to add a product to the cart with quantity selection.
     """
     product = get_object_or_404(Product, id=product_id)
-    quantity = int(request.POST.get('quantity', 1))
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            raise ValueError
+    except (ValueError, TypeError):
+        messages.error(request, "Invalid quantity.")
+        return redirect('product_detail', product_id=product_id)
 
     # Validate stock
     if quantity > product.stock:
@@ -27,12 +33,21 @@ def add_to_cart(request, product_id):
         if not cart:
             messages.error(request, "No active cart found. Please select or create a cart.")
             return redirect('cart_detail')
-        # Check if the cart item already exists
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+
+        # Get or create CartItem with initial quantity=0
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': 0}
+        )
+
+        # Calculate new total quantity
         total_quantity = cart_item.quantity + quantity
         if total_quantity > product.stock:
             messages.error(request, "Not enough stock available.")
             return redirect('product_detail', product_id=product_id)
+
+        # Update the quantity
         cart_item.quantity = total_quantity
         cart_item.save()
     else:
