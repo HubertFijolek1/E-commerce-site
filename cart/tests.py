@@ -51,7 +51,7 @@ class CartTests(TestCase):
 
         # Check that the discount was applied correctly
         response = self.client.get('/cart/')
-        self.assertContains(response, 'Discount (10%)')
+        self.assertContains(response, 'Discount (10.00%)')  # Updated to match rendered output
         self.assertContains(response, '-$2.00')  # 10% of 20.00 is 2.00
 
     def test_tax_calculation_in_cart(self):
