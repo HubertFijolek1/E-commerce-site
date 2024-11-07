@@ -39,7 +39,7 @@ class DiscountCode(models.Model):
     Model representing a discount code.
     """
     code = models.CharField(max_length=50, unique=True)
-    discount_percent = models.FloatField()
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
         return self.code
