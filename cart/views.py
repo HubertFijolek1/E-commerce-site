@@ -186,9 +186,12 @@ def apply_discount(request):
     code = request.POST.get('code')
     try:
         discount = DiscountCode.objects.get(code=code)
-        # Convert Decimal to string for session storage to maintain precision
-        request.session['discount'] = str(discount.discount_percent)
-        messages.success(request, "Discount code applied.")
+        if discount.is_valid():
+            request.session['discount'] = str(discount.discount_percent)
+            request.session['discount_code'] = discount.code
+            messages.success(request, "Discount code applied.")
+        else:
+            messages.error(request, "Discount code is invalid or expired.")
     except DiscountCode.DoesNotExist:
         messages.error(request, "Invalid discount code.")
     return redirect('cart_detail')
@@ -259,6 +262,9 @@ def checkout(request):
         shipping_cost=shipping_cost,
         final_total=final_total
     )
+    if order.discount_code:
+        order.discount_code.times_used += 1
+        order.discount_code.save()
 
     # Create OrderItems and deduct stock
     for item in cart_items:
