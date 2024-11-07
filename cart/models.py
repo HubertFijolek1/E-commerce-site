@@ -44,8 +44,6 @@ class DiscountCode(models.Model):
     def __str__(self):
         return self.code
 
-# cart/models.py
-
 class Order(models.Model):
     """
     Model representing a completed order.
@@ -61,8 +59,6 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
-
-# cart/models.py
 
 class OrderItem(models.Model):
     """

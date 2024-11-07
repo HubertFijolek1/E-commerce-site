@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Product, DiscountCode, Cart, CartItem
+from .models import Product, DiscountCode, Cart, CartItem, Order, OrderItem
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from django.urls import reverse
@@ -232,23 +232,54 @@ def checkout(request):
         messages.error(request, "Your cart is empty.")
         return redirect('cart_detail')
 
-    # Validate stock
+    # Calculate totals
+    total_price = Decimal('0.00')
     for item in cart_items:
-        if item.quantity > item.product.stock:
-            messages.error(request, f"Not enough stock for {item.product.name}.")
-            return redirect('cart_detail')
+        total_price += item.product.price * item.quantity
 
-    # Deduct stock
+    discount_percent = Decimal(request.session.get('discount', '0'))
+    discount_amount = total_price * (discount_percent / Decimal('100'))
+    price_after_discount = total_price - discount_amount
+
+    tax_amount = price_after_discount * TAX_RATE
+
+    if price_after_discount >= FREE_SHIPPING_THRESHOLD:
+        shipping_cost = Decimal('0.00')
+    else:
+        shipping_cost = FLAT_SHIPPING_RATE
+
+    final_total = price_after_discount + tax_amount + shipping_cost
+
+    # Create Order
+    order = Order.objects.create(
+        user=request.user,
+        total_amount=total_price,
+        discount_code=DiscountCode.objects.filter(code=request.session.get('discount_code')).first(),
+        tax_amount=tax_amount,
+        shipping_cost=shipping_cost,
+        final_total=final_total
+    )
+
+    # Create OrderItems and deduct stock
     for item in cart_items:
-        product = item.product
-        product.stock -= item.quantity
-        product.save()
+        OrderItem.objects.create(
+            order=order,
+            product=item.product,
+            quantity=item.quantity,
+            price_at_purchase=item.product.price
+        )
+        # Deduct stock
+        item.product.stock -= item.quantity
+        item.product.save()
 
-    # Mark cart as inactive or create a new order
+    # Clear cart
+    cart_items.delete()
     cart.is_active = False
     cart.save()
+    request.session.pop('discount', None)
+    request.session.pop('discount_code', None)
 
-    messages.success(request, "Purchase successful!")
+    messages.success(request, "Purchase successful! Your order has been placed.")
     return redirect('home')
 
 
