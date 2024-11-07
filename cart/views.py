@@ -3,6 +3,8 @@ from django.contrib import messages
 from .models import Product, DiscountCode, Cart, CartItem
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
+from django.urls import reverse
+
 
 # Constants for tax and shipping
 TAX_RATE = Decimal('0.10')  # 10% tax as Decimal
@@ -62,7 +64,8 @@ def add_to_cart(request, product_id):
         request.session['cart_items'] = cart_items
 
     messages.success(request, "Product added to cart.")
-    return redirect('cart_detail')
+    return redirect(reverse('cart_detail'))
+
 
 def cart_detail(request):
     """
