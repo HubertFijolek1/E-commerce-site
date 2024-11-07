@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 from .models import Product, Cart, CartItem, DiscountCode
 
-
 class ProductViewTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -12,13 +11,13 @@ class ProductViewTests(TestCase):
         self.product2 = Product.objects.create(name='Product 2', price=Decimal('29.99'), stock=50)
 
     def test_product_list_view(self):
-        response = self.client.get('/products/')
+        response = self.client.get('/cart/products/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Product 1')
         self.assertContains(response, 'Product 2')
 
     def test_product_detail_view(self):
-        response = self.client.get(f'/products/{self.product1.id}/')
+        response = self.client.get(f'/cart/products/{self.product1.id}/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Product 1')
         self.assertContains(response, '19.99')
