@@ -168,7 +168,8 @@ def apply_discount(request):
     code = request.POST.get('code')
     try:
         discount = DiscountCode.objects.get(code=code)
-        request.session['discount'] = discount.discount_percent
+        # Convert Decimal to string for session storage to maintain precision
+        request.session['discount'] = str(discount.discount_percent)
         messages.success(request, "Discount code applied.")
     except DiscountCode.DoesNotExist:
         messages.error(request, "Invalid discount code.")
