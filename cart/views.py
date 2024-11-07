@@ -314,3 +314,13 @@ def product_detail(request, product_id):
     """
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'cart/product_detail.html', {'product': product})
+
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'cart/order_history.html', {'orders': orders})
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'cart/order_detail.html', {'order': order})
