@@ -202,6 +202,38 @@ def select_cart(request, cart_id):
     messages.success(request, f"Cart '{cart.name}' is now active.")
     return redirect('cart_detail')
 
+@login_required
+def checkout(request):
+    cart = Cart.objects.filter(user=request.user, is_active=True).first()
+    if not cart:
+        messages.error(request, "No active cart to checkout.")
+        return redirect('cart_detail')
+
+    cart_items = CartItem.objects.filter(cart=cart)
+    if not cart_items.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect('cart_detail')
+
+    # Validate stock
+    for item in cart_items:
+        if item.quantity > item.product.stock:
+            messages.error(request, f"Not enough stock for {item.product.name}.")
+            return redirect('cart_detail')
+
+    # Deduct stock
+    for item in cart_items:
+        product = item.product
+        product.stock -= item.quantity
+        product.save()
+
+    # Mark cart as inactive or create a new order
+    cart.is_active = False
+    cart.save()
+
+    messages.success(request, "Purchase successful!")
+    return redirect('home')
+
+
 def clear_cart(request):
     """
     View to clear all items from the cart.
